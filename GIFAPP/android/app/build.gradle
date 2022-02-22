@@ -82,6 +82,9 @@ project.ext.react = [
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
+// To access Vector icons in react native
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -192,6 +195,10 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    // for Gif
+    implementation 'com.facebook.fresco:fresco:2.5.0'
+    implementation 'com.facebook.fresco:animated-gif:2.5.0'
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
