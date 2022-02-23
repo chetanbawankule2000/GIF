@@ -11,8 +11,12 @@ import {windowWidth} from '../constants/diamensions';
 import {colors} from '../constants/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {SearchSuggestions, SearchGif} from '../utils/ApiRequest';
+import {search_gif} from '../redux/actions/apiActions';
+import {useDispatch} from 'react-redux';
 
 const GifDetail = ({route, navigation}) => {
+  const dispatch = useDispatch();
+
   const [related, setRelated] = useState([]);
   let {data} = route.params;
 
@@ -25,8 +29,8 @@ const GifDetail = ({route, navigation}) => {
   }, []);
 
   const suggetionDetail = async term => {
-    let res = await SearchGif(term);
-    navigation.navigate('SearchedResult', {data: res.data, title: term});
+    dispatch(search_gif(term));
+    navigation.navigate('SearchedResult', {title: term});
   };
   return (
     <View style={styles.container}>
@@ -49,7 +53,6 @@ const GifDetail = ({route, navigation}) => {
         <View style={styles.suggetionView}>
           {related.length !== 0
             ? related.map(item => {
-                // if (item.index <= 3) {
                 return (
                   <TouchableOpacity
                     style={styles.suggestion}
@@ -57,7 +60,6 @@ const GifDetail = ({route, navigation}) => {
                     <Text style={styles.suggestionText}>{item.name}</Text>
                   </TouchableOpacity>
                 );
-                // }
               })
             : null}
         </View>
@@ -73,7 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
     paddingHorizontal: 24,
-    // paddingRight:24,
     paddingLeft: 24,
     paddingTop: 24,
   },
