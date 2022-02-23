@@ -5,16 +5,19 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import React from 'react';
 import {colors} from '../constants/colors';
 import {windowHeight, windowWidth} from '../constants/diamensions';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {useSelector} from 'react-redux';
 
 const SearchResult = ({route, navigation}) => {
-  //   const navigation = useNavigation();
+  const SEARCHED_GIF = useSelector(state => state.apidata.SearchGif);
+  console.log('searched are ', SEARCHED_GIF);
 
-  let {data, title} = route.params;
+  let {title} = route.params;
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -27,29 +30,33 @@ const SearchResult = ({route, navigation}) => {
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>GIFs</Text>
-      <FlatList
-        keyboardShouldPersistTaps="handled"
-        data={data}
-        //   horizontal={true}
-
-        //   ItemSeparatorComponent={() => Seperator()}
-        renderItem={({item, index}) => {
-          return (
-            <TouchableOpacity style={styles.gifContainer}>
-              <Image
-                key={item.id}
-                source={{uri: item.images.original.url}}
-                style={styles.gifImage}
-                resizeMethod="auto"
-              />
-            </TouchableOpacity>
-          );
-        }}
-        keyExtractor={(item, index) => {
-          `${index} + ${item.url}`;
-        }}
-        numColumns={2}
-      />
+      {!SEARCHED_GIF.loading ? (
+        <FlatList
+          keyboardShouldPersistTaps="handled"
+          data={SEARCHED_GIF.search_gif}
+          renderItem={({item, index}) => {
+            return (
+              <TouchableOpacity style={styles.gifContainer}>
+                <Image
+                  key={item.id}
+                  source={{uri: item.images.original.url}}
+                  style={styles.gifImage}
+                  resizeMethod="auto"
+                />
+              </TouchableOpacity>
+            );
+          }}
+          keyExtractor={(item, index) => {
+            `${index} + ${item.url}`;
+          }}
+          numColumns={2}
+        />
+      ) : (
+        <ActivityIndicator
+          size={'large'}
+          style={{alignSelf: 'center', justifyContent: 'center'}}
+        />
+      )}
     </View>
   );
 };

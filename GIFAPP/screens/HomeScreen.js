@@ -16,31 +16,37 @@ import {
   SearchGif,
 } from '../utils/ApiRequest';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+
 import {colors} from '../constants/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {windowHeight, windowWidth} from '../constants/diamensions';
-import {useFocusEffect} from '@react-navigation/native';
+import {
+  search_gif,
+  suggestion_gif,
+  trnding_gifs,
+} from '../redux/actions/apiActions';
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-  const [Gif, setGif] = useState([]);
-  const [randomGif, setRandomGif] = useState([]);
-  const [searchSuggestion, setSearchSuggestion] = useState([]);
+  useEffect(() => {
+    dispatch(trnding_gifs());
+  }, []);
+
+  const TRENDING_GIF = useSelector(state => state.apidata.Trending);
+  const SUGGETIONS_GIF = useSelector(stae => stae.apidata.SearchSuggetions);
+  const SEARCHED_GIF = useSelector(state => state.apidata.SearchGif);
   const [searchText, setSearchText] = useState('');
   const [textInputBorderColor, setTextInputBorderColor] = useState(
     colors.white,
   );
   const [textInputElevation, setTextInputElevation] = useState(1);
   const [showTrending, setShowTrending] = useState(true);
-  const [textInputValue, setTextInputValue] = useState('');
   const [showList, setShowList] = useState(true);
-
-  const [searchResult, setSearchResult] = useState([]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // The screen is focused
-      // Call any action
       setSearchText('');
     });
 
@@ -48,27 +54,19 @@ const HomeScreen = () => {
     return unsubscribe;
   }, [navigation]);
 
-  const getTrendingGif = async () => {
-    let gifdata = await TrendingGif();
-    setGif(gifdata.data);
-  };
-
   const searchSuggestions = async term => {
-    let suggestionData = await SearchSuggestions(term);
-    setSearchSuggestion(suggestionData.data);
+    dispatch(suggestion_gif(term));
   };
 
   const searchGif = async text => {
     setShowTrending(false);
     setShowList(false);
     setSearchText(text);
-    let searchRes = await SearchGif(text);
-    setSearchResult(searchRes.data);
-    navigation.navigate('SearchedResult', {data: searchRes.data, title: text});
+    dispatch(search_gif(text));
+    navigation.navigate('SearchedResult', {
+      title: text,
+    });
   };
-  useEffect(() => {
-    getTrendingGif();
-  }, []);
 
   return (
     <View style={styles.homeContainer}>
@@ -97,11 +95,9 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
       <View>
-        {searchSuggestion.length !== 0 &&
-        searchText.length !== 0 &&
-        showList ? (
+        {!SUGGETIONS_GIF.loading && searchText.length !== 0 && showList ? (
           <FlatList
-            data={searchSuggestion}
+            data={SUGGETIONS_GIF.search_suggetions}
             style={styles.suggestionContainer}
             renderItem={(item, index) => {
               return (
@@ -118,8 +114,8 @@ const HomeScreen = () => {
       </View>
       <View>
         <Text style={styles.title}>Trending GIFs</Text>
-        {Gif.length !== 0 ? (
-          <Trending gif={Gif} />
+        {!TRENDING_GIF.loading ? (
+          <Trending gif={TRENDING_GIF.trending_data} />
         ) : (
           <ActivityIndicator
             size={'large'}
